@@ -19,3 +19,6 @@ class User(db.Model):
     # Metode __repr__ digunakan untuk menentukan representasi string dari objek User. Ini digunakan untuk debugging dan pencetakan objek.
     def __repr__(self):
         return f"<User {self.username}>"
+
+
+# untuk melakuan migrasi  database, harus menggunakan flask db init, flask db migrate, dan flask db upgrade

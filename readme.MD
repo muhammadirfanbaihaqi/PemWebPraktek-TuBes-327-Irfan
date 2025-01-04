@@ -109,7 +109,6 @@ Screenshoot halaman login
 Screenshoot halaman Registrasi
 ![App Screenshot](./screenshoots/registrasi.png)
 
-## License
-
-[MIT](https://choosealicense.com/licenses/mit/)
+Screenshoot untuk halaman dashboard untuk user dengan role user
+![App Screenshot](./screenshoots/dashboarduser.png)
 

@@ -10,25 +10,25 @@
     {% endblock %}
 </head>
 <body class="bg-gray-100">
-    <nav class="bg-gray-800 p-4">
+    <nav class="bg-gradient-to-r from-teal-400 to-blue-500 p-4 shadow-md">
         <div class="container mx-auto flex justify-between items-center">
-            <a class="text-white text-2xl font-bold" href="{{ url_for('main.awal') }}">My Flask App</a>
+            <a class="text-gray-700 text-2xl font-bold hover:text-gray-900 transition duration-300" href="{{ url_for('main.awal') }}">My Flask App</a>
             <ul class="flex space-x-4">
                 <li>
                     {% if session['role'] == 'admin' %}
-                        <a class="text-gray-300 hover:text-white" href="{{ url_for('main.homeadmin') }}">Dashboard</a>
+                        <a class="text-white bg-indigo-600 px-3 py-1 rounded hover:bg-indigo-700 transition duration-300 ease-in-out transform hover:scale-105" href="{{ url_for('main.homeadmin') }}">Dashboard</a>
                     {% elif session['role'] == 'user' %}
-                        <a class="text-gray-300 hover:text-white" href="{{ url_for('main.home') }}">Dashboard</a>
+                        <a class="text-white bg-indigo-600 px-3 py-1 rounded hover:bg-indigo-700 transition duration-300 ease-in-out transform hover:scale-105" href="{{ url_for('main.home') }}">Dashboard</a>
                     {% endif %}
                 </li>
                 {% if session['role'] == 'admin' %}
                 <li>
-                    <a class="text-gray-300 hover:text-white" href="{{ url_for('main.adduser') }}">Add User</a>
+                    <a class="text-white bg-green-600 px-3 py-1 rounded hover:bg-green-700 transition duration-300 ease-in-out transform hover:scale-105" href="{{ url_for('main.adduser') }}">Add User</a>
                 </li>
                 {% endif %}
                 <li>
                     {% if session['loggedin'] %}
-                        <a class="text-gray-300 hover:text-white" href="{{ url_for('main.logout') }}">Logout</a>
+                        <a class="text-white bg-red-600 px-3 py-1 rounded hover:bg-red-700 transition duration-300 ease-in-out transform hover:scale-105" href="{{ url_for('main.logout') }}">Logout</a>
                     {% endif %}
                 </li>
             </ul>

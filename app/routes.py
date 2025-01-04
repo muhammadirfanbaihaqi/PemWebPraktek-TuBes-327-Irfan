@@ -20,7 +20,7 @@ def awal():
         return redirect(url_for('main.login'))
     
 @main.route('/home')
-def home():
+def home(): #HOME UNTUK USER BIASA
     if 'loggedin' in session:
         if session['role'] == 'user':
             data = User.query.all()

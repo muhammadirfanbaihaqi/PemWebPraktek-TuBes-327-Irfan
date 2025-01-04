@@ -136,36 +136,25 @@ def adduser():
     else:
         flash('You are not authorized to access this page.', 'danger')
         return redirect(url_for('main.logout'))
-
-
-
-
-
-# @main.route('/users/<int:user_id>', methods=['GET'])
-# def get_user(user_id):
-#     user = User.query.get(user_id)
-#     if user:
-#         return jsonify(
-#             {'id':user.id, 'username': user.username, 'email': user.email }, 201
-#         )
-#     else:
-#         return jsonify({'message': 'User not found'},404)
     
 
-# @main.route('/users/<int:user_id>', methods=['PUT'])
-# def update_user(user_id):
-#     user = User.query.get(user_id)
-#     if not user:
-#         return jsonify({'message': 'User not found'},404)
-#     data = request.get_json()
-#     name = data.get('name')
-#     email = data.get('email')
-#     if not name or not email:
-#         return jsonify({'message': 'Name and email are required'}), 400
-#     user.name = name
-#     user.email = email
-#     db.session.commit()
-#     return jsonify({'message': 'User updated successfully', "user": {"id" : user.id, "name": user.name, "email": user.email}}), 200
+@main.route('/update_user/<int:id>', methods=['GET', 'POST'])
+def update_user(id):
+    if 'loggedin' in session and session['role'] == 'admin':
+        user = User.query.get_or_404(id)
+        if request.method == 'POST':
+            user.username = request.form['username']
+            user.email = request.form['email']
+            if request.form['password']:  # If password field is not empty
+                user.password = generate_password_hash(request.form['password'], method='pbkdf2:sha256')
+            db.session.commit()
+            session['name'] = request.form['username']
+            flash('User updated successfully!', 'success')
+            return redirect(url_for('main.update_user', id=user.id))
+        return render_template('updateuser.html', user=user)
+    else:
+        flash('You are not authorized to access this page.', 'danger')
+        return redirect(url_for('main.logout'))
 
 
 

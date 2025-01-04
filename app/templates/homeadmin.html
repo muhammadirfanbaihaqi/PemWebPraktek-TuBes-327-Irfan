@@ -7,32 +7,31 @@
 
 {% block body %}
 <div class="container mx-auto py-6">
-  <h1 class="text-2xl font-bold mb-4">DAFTAR USER</h1>
-  <div class="overflow-x-auto">
-    <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+  <h1 class="text-2xl font-bold mb-4 text-center text-gray-800">Daftar User</h1>
+  <div class="max-w-5xl mx-auto overflow-x-auto bg-white shadow-md rounded-lg">
+    <table class="min-w-full leading-normal">
       <thead>
-        <tr class="bg-gray-100 border-b">
-          <th class="py-3 px-6 text-left">User ID</th>
-          <th class="py-3 px-6 text-left">Username</th>
-          <th class="py-3 px-6 text-left">Email</th>
-          <th class="py-3 px-6 text-left">Role</th>
-          <th class="py-3 px-6 text-left">Actions</th>
+        <tr class="bg-gray-800 text-white">
+          <th class="py-3 px-6 text-left text-sm uppercase font-semibold">User ID</th>
+          <th class="py-3 px-6 text-left text-sm uppercase font-semibold">Username</th>
+          <th class="py-3 px-6 text-left text-sm uppercase font-semibold">Email</th>
+          <th class="py-3 px-6 text-left text-sm uppercase font-semibold">Role</th>
+          <th class="py-3 px-6 text-left text-sm uppercase font-semibold">Actions</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody class="bg-white">
         {% for user in users %}
-        <tr class="border-b hover:bg-gray-50" x-data="{ userId: {{ user.id }} }">
-          <td class="py-3 px-6">{{ user.id }}</td>
-          <td class="py-3 px-6">{{ user.username }}</td>
-          <td class="py-3 px-6">{{ user.email }}</td>
-          <td class="py-3 px-6">{{ user.role }}</td>
-          <td class="py-3 px-6">
+        <tr class="hover:bg-gray-100 border-t border-gray-200" x-data="{ userId: {{ user.id }} }">
+          <td class="py-3 px-6 text-gray-900 whitespace-nowrap">{{ user.id }}</td>
+          <td class="py-3 px-6 text-gray-900 whitespace-nowrap">{{ user.username }}</td>
+          <td class="py-3 px-6 text-gray-900 whitespace-nowrap">{{ user.email }}</td>
+          <td class="py-3 px-6 text-gray-900 whitespace-nowrap">{{ user.role }}</td>
+          <td class="py-3 px-6 whitespace-nowrap">
             <button @click="deleteUser(userId)" 
-                    class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 {% if session_id == user.id %} bg-gray-500 cursor-not-allowed hover:bg-gray-500 {% endif %}" 
+                    class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 {% if session_id == user.id %} cursor-not-allowed bg-gray-500 hover:bg-gray-500 {% endif %}" 
                     {% if session_id == user.id %} disabled {% endif %}>Hapus</button>
-            <button class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">Update</button>
+            <a href="{{ url_for('main.update_user', id=user.id) }}" class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">Update</a>
           </td>
-        
         </tr>
         {% endfor %}
       </tbody>
@@ -54,5 +53,4 @@
     });
   }
 </script>
-
 {% endblock %}

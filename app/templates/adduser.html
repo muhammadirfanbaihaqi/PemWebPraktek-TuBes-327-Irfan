@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+
+{% block head %}
+<title>Add User</title>
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" defer></script>
+{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex items-center justify-center">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+        <h2 class="text-2xl font-bold mb-4 text-center">Add User</h2>
+        <form method="POST" action="{{ url_for('main.adduser') }}" x-data="{ username: '', email: '', password: '', role: '' }" x-init="@this.on('form-reset', () => { username = ''; email = ''; password = ''; role = ''; })">
+            <div class="mb-4">
+                <label for="username" class="block text-gray-700">Username:</label>
+                <input type="text" id="username" name="username" x-model="username" class="w-full p-2 border border-gray-300 rounded mt-1 focus:outline-none focus:ring focus:border-blue-300" required>
+            </div>
+            <div class="mb-4">
+                <label for="email" class="block text-gray-700">Email:</label>
+                <input type="email" id="email" name="email" x-model="email" class="w-full p-2 border border-gray-300 rounded mt-1 focus:outline-none focus:ring focus:border-blue-300" required>
+            </div>
+            <div class="mb-4">
+                <label for="password" class="block text-gray-700">Password:</label>
+                <input type="password" id="password" name="password" x-model="password" class="w-full p-2 border border-gray-300 rounded mt-1 focus:outline-none focus:ring focus:border-blue-300" required>
+            </div>
+            <div class="mb-6">
+                <label for="role" class="block text-gray-700">Role:</label>
+                <select id="role" name="role" x-model="role" class="w-full p-2 border border-gray-300 rounded mt-1 focus:outline-none focus:ring focus:border-blue-300" required>
+                    <option value="" disabled selected>Pilih Role</option>
+                    <option value="admin">Admin</option>
+                    <option value="user">User</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200">Add User</button>
+        </form>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white py-2 px-4 rounded">
+              <p>
+                {{ messages[-1][1] }}
+              </p>
+            </div>
+            <script>
+              document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(function() {
+                  Livewire.emit('form-reset');
+                }, 4000);
+              });
+            </script>
+          {% endif %}
+        {% endwith %}
+    </div>
+</div>
+{% endblock %}

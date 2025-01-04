@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+
+{% block head %}
+<title>Selamat Datang</title>
+{% endblock %}
+
+{% block body %}
+<div class="container mx-auto py-6">
+  <h1 class="text-2xl font-bold mb-4">DAFTAR USER</h1>
+  <div class="overflow-x-auto">
+    <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+      <thead>
+        <tr class="bg-gray-100 border-b">
+          <th class="py-3 px-6 text-left">User ID</th>
+          <th class="py-3 px-6 text-left">Username</th>
+          <th class="py-3 px-6 text-left">Email</th>
+          <th class="py-3 px-6 text-left">Role</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+        <tr class="border-b hover:bg-gray-50">
+          <td class="py-3 px-6">{{ user.id }}</td>
+          <td class="py-3 px-6">{{ user.username }}</td>
+          <td class="py-3 px-6">{{ user.email }}</td>
+          <td class="py-3 px-6">{{ user.role }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

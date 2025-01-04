@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+
+{% block head %}
+<title>Selamat Datang</title>
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" defer></script>
+{% endblock %}
+
+{% block body %}
+<div class="container mx-auto py-6">
+  <h1 class="text-2xl font-bold mb-4">DAFTAR USER</h1>
+  <div class="overflow-x-auto">
+    <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+      <thead>
+        <tr class="bg-gray-100 border-b">
+          <th class="py-3 px-6 text-left">User ID</th>
+          <th class="py-3 px-6 text-left">Username</th>
+          <th class="py-3 px-6 text-left">Email</th>
+          <th class="py-3 px-6 text-left">Role</th>
+          <th class="py-3 px-6 text-left">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+        <tr class="border-b hover:bg-gray-50" x-data="{ userId: {{ user.id }} }">
+          <td class="py-3 px-6">{{ user.id }}</td>
+          <td class="py-3 px-6">{{ user.username }}</td>
+          <td class="py-3 px-6">{{ user.email }}</td>
+          <td class="py-3 px-6">{{ user.role }}</td>
+          <td class="py-3 px-6">
+            <button @click="deleteUser(userId)" 
+                    class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 {% if session_id == user.id %} bg-gray-500 cursor-not-allowed hover:bg-gray-500 {% endif %}" 
+                    {% if session_id == user.id %} disabled {% endif %}>Hapus</button>
+            <button class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">Update</button>
+          </td>
+        
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  function deleteUser(userId) {
+    fetch(`/delete_user/${userId}`, {
+      method: 'DELETE'
+    })
+    .then(response => {
+      if (response.ok) {
+        location.reload();
+      } else {
+        alert('Gagal menghapus user.');
+      }
+    });
+  }
+</script>
+
+{% endblock %}

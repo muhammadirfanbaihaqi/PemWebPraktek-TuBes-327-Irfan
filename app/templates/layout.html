@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Flask App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dist/output.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    {% block head %}
+    {% endblock %}
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-gray-800 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a class="text-white text-2xl font-bold" href="{{ url_for('main.awal') }}">My Flask App</a>
+            <ul class="flex space-x-4">
+                <li>
+                    {% if session['role'] == 'admin' %}
+                        <a class="text-gray-300 hover:text-white" href="{{ url_for('main.homeadmin') }}">Dashboard</a>
+                    {% elif session['role'] == 'user' %}
+                        <a class="text-gray-300 hover:text-white" href="{{ url_for('main.home') }}">Dashboard</a>
+                    {% endif %}
+                </li>
+                {% if session['role'] == 'admin' %}
+                <li>
+                    <a class="text-gray-300 hover:text-white" href="{{ url_for('main.adduser') }}">Add User</a>
+                </li>
+                {% endif %}
+                <li>
+                    {% if session['loggedin'] %}
+                        <a class="text-gray-300 hover:text-white" href="{{ url_for('main.logout') }}">Logout</a>
+                    {% endif %}
+                </li>
+            </ul>
+        </div>
+    </nav>
+    {% block body %}
+    {% endblock %}
+</body>
+</html>

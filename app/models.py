@@ -14,7 +14,7 @@ class User(db.Model):
     # Mendefinisikan kolom email sebagai string dengan panjang maksimal 120 karakter, harus unik (tidak boleh ada duplikat), dan kolom ini tidak boleh kosong (nullable=False).
     email = db.Column(db.String(120), unique=True, nullable=False)
     # Mendefinisikan kolom password_hash sebagai string dengan panjang maksimal 128 karakter dan kolom ini tidak boleh kosong (nullable=False).
-    password_hash = db.Column(db.String(128), nullable=False)
+    password_hash = db.Column(db.Text, nullable=False)
 
     # Metode __repr__ digunakan untuk menentukan representasi string dari objek User. Ini digunakan untuk debugging dan pencetakan objek.
     def __repr__(self):

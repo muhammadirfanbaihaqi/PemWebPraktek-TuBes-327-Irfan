@@ -1,77 +1,171 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, render_template, redirect, url_for, flash, session
 from .models import User
 from . import db
+from werkzeug.security import generate_password_hash, check_password_hash
+from generate_id import GenerateID as GI
 
 main = Blueprint('main', __name__)
 
-# C A T A T A N
-# Blueprint adalah objek yang digunakan untuk mengelompokkan rute-rute (route) dalam aplikasi Flask.
-# __name__ adalah nama modul saat ini, yang digunakan untuk mengidentifikasi blueprint.
 
-#  QUERY KE DATABASE berbeda dengan query sql biasa
-# hal ini dikarenakan pada kasus ini kita menggunakan ORM (Object-Relational Mapping) , dengan SQLAlchemy
-# ORM adalah teknik pemrograman yang menghubungkan kelas-kelas dalam kode kita dengan tabel-tabel dalam basis data.
-# Dengan ORM, kita bisa menggunakan objek dan metode dalam bahasa pemrograman yang kita gunakan (dalam hal ini Python) untuk berinteraksi dengan basis data, 
-# tanpa perlu menulis kueri SQL secara langsung.
-# alih-alih mengembalikan baris-baris sebagai hasil kueri SQL, 
-# QUERY dengan ORM  mengembalikan daftar objek yang dapat kita manipulasi dalam kode Python.
-
-@main.route('/users', methods=['GET'])
-def get_users():
-    users = User.query.all() #QUERY BERBEDA DENGAN SQL BIASA, TAPI SAMA SAMA DIGUNAKAN UNTUK MENGAMBIL DATA DARI DATABASE
-    return jsonify(
-        [
-            {'id':user.id, 'name': user.name, 'email': user.email } for user in users
-        ]
-    )
-
-@main.route('/users/<int:user_id>', methods=['GET'])
-def get_user(user_id):
-    user = User.query.get(user_id)
-    if user:
-        return jsonify(
-            {'id':user.id, 'name': user.name, 'email': user.email }, 201
-        )
+@main.route('/', methods=['GET', 'POST'])
+def awal():
+    if 'loggedin' in session:
+        # membedakan tampilan home untuk admin dan user biasa
+        if session['role'] == 'admin':
+            return redirect(url_for('main.homeadmin'))
+        else:
+            return redirect(url_for('main.home'))
     else:
-        return jsonify({'message': 'User not found'},404)
+        flash('Please log in to acces this page.', 'warning')
+        return redirect(url_for('main.login'))
     
-@main.route('/users', methods=['POST'])
-def create_user():
-    data = request.get_json()
-    name = data.get('name')
-    email = data.get('email')
+@main.route('/home')
+def home():
+    if 'loggedin' in session:
+        if session['role'] == 'user':
+            data = User.query.all()
+            return render_template('home.html', users=data)
+        else:
+            flash('You are not authorized to access this page.', 'danger')
+            return redirect(url_for('main.logout'))
+    else:
+        flash('Please log in to acces this page.', 'warning')
+        return redirect(url_for('main.login'))
+    
 
-    if not name or not email:
-        return jsonify({'message': 'Name and email are required'}), 400
-    new_user = User(name=name, email=email)
-    db.session.add(new_user)
-    db.session.commit()
+@main.route('/homeadmin', methods=['GET', 'POST'])
+def homeadmin():
+    if 'loggedin' in session:
+        if session['role'] == 'admin':
+            data = User.query.all()
+            return render_template('homeadmin.html', users=data, session_id=session['id'])
+        else:
+            flash('You are not authorized to access this page.', 'danger')
+            return redirect(url_for('main.logout'))
+    else:
+        flash('Please log in to acces this page.', 'warning')
+        return redirect(url_for('main.login'))
+    
+@main.route('/delete_user/<int:id>', methods=['DELETE'])
+def delete_user(id):
+    if 'loggedin' in session and session['role'] == 'admin':
+        user = User.query.get_or_404(id)
+        db.session.delete(user)
+        db.session.commit()
+        return '', 204
+    else:
+        flash('You are not authorized to perform this action.', 'danger')
+        return redirect(url_for('main.logout'))
 
-    return jsonify({'message': 'User created successfully', "user": {"id" : new_user.id, "name": new_user.name, "email": new_user.email}}), 201
-
-@main.route('/users/<int:user_id>', methods=['PUT'])
-def update_user(user_id):
-    user = User.query.get(user_id)
-    if not user:
-        return jsonify({'message': 'User not found'},404)
-    data = request.get_json()
-    name = data.get('name')
-    email = data.get('email')
-    if not name or not email:
-        return jsonify({'message': 'Name and email are required'}), 400
-    user.name = name
-    user.email = email
-    db.session.commit()
-    return jsonify({'message': 'User updated successfully', "user": {"id" : user.id, "name": user.name, "email": user.email}}), 200
 
 
-@main.route('/users/<int:user_id>', methods=['DELETE'])
-def delete_user(user_id):
-    user = User.query.get(user_id)
-    if not user:
-        return jsonify({'message': 'User not found'},404)
+@main.route('/login', methods=['POST', 'GET'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
 
-    db.session.delete(user)
-    db.session.commit()
-    return jsonify({'message': 'User deleted successfully'}), 200
+        user = User.query.filter_by(email=email).first()
+
+        if user and check_password_hash(user.password_hash, password):  # Verifikasi password
+            # MEMBUAT SESSION
+            session['loggedin'] = True 
+            session['id'] = user.id
+            session['name'] = user.username
+            session['role'] = user.role
+            flash('Login successful!', 'success')
+            # membedakan akses login untuk admin dengan user biasa
+            if user.role == 'admin':
+                return redirect(url_for('main.homeadmin'))
+            else:
+                return redirect(url_for('main.home'))
+
+        else:
+            flash('Invalid email or password!', 'danger')
+
+    return render_template('login.html')
+
+@main.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
+        role = 'user' # Default role is 'user' , jika membuat dari form register, maka role defaultnya user
+        id_user = GI.generate_id()
+
+        # Hash password before saving to the database
+        hashed_password = generate_password_hash(password)
+
+        # Create a new user and add it to the database
+        new_user = User(username=username, email=email, password_hash=hashed_password, role=role, id=id_user)
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash('You have successfully registered! Please log in.', 'success')
+        return redirect(url_for('main.login'))
+    return render_template('register.html')
+
+@main.route('/logout', methods=['POST', 'DELETE', 'GET'])
+def logout():
+    session.pop('loggedin', None)
+    session.pop('id', None)
+    session.pop('username', None)
+    session.pop('role', None)  # Remove role from session too, in case it exists.
+    #The None argument ensures that no error is raised if the key doesn't exist. 
+    flash('You have been logged out.', 'success')
+    return redirect(url_for('main.login'))
+
+
+@main.route('/adduser', methods=['POST', 'GET','PUT'])
+def adduser():
+    if 'loggedin' in session and  session['role'] == 'admin':
+        if request.method == 'POST':
+            username = request.form['username']
+            email = request.form['email']
+            password = request.form['password']
+            role = request.form['role']
+            id_user = GI.generate_id()
+            hashed_password = generate_password_hash(password)
+            new_user = User(username=username, email=email, password_hash=hashed_password, role=role, id=id_user)
+            db.session.add(new_user)
+            db.session.commit()
+            flash('User added successfully!', 'success')
+            return redirect(url_for('main.adduser'))
+        return render_template('adduser.html')
+    else:
+        flash('You are not authorized to access this page.', 'danger')
+        return redirect(url_for('main.logout'))
+
+
+
+
+
+# @main.route('/users/<int:user_id>', methods=['GET'])
+# def get_user(user_id):
+#     user = User.query.get(user_id)
+#     if user:
+#         return jsonify(
+#             {'id':user.id, 'username': user.username, 'email': user.email }, 201
+#         )
+#     else:
+#         return jsonify({'message': 'User not found'},404)
+    
+
+# @main.route('/users/<int:user_id>', methods=['PUT'])
+# def update_user(user_id):
+#     user = User.query.get(user_id)
+#     if not user:
+#         return jsonify({'message': 'User not found'},404)
+#     data = request.get_json()
+#     name = data.get('name')
+#     email = data.get('email')
+#     if not name or not email:
+#         return jsonify({'message': 'Name and email are required'}), 400
+#     user.name = name
+#     user.email = email
+#     db.session.commit()
+#     return jsonify({'message': 'User updated successfully', "user": {"id" : user.id, "name": user.name, "email": user.email}}), 200
+
+
 

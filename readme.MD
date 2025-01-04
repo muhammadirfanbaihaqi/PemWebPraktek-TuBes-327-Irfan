@@ -32,7 +32,7 @@ dengan informasi user awal untuk admin adalah:
 - Melihat daftar User
 ## Screenshots
 
-![App Screenshot](./screenshots/tampiluserinadmin.png)
+![App Screenshot](./screenshots/tampiluser.png)
 
 
 - Menghapus User (TIDAK BISA MENGHAPUS DIRINYA SENDIRI ATAU USER(ADMIN) YANG SEDANG LOGIN DI SESSION)
